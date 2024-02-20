@@ -8,8 +8,8 @@ defmodule Membrane.OverlayFilter do
 
   alias Membrane.RawVideo
 
-  def_input_pad :input, accepted_format: RawVideo
-  def_output_pad :output, accepted_format: RawVideo
+  def_input_pad :input, accepted_format: %RawVideo{pixel_format: :I420}
+  def_output_pad :output, accepted_format: %RawVideo{pixel_format: :I420}
 
   alias Vix.Vips.Image, as: Vimage
   alias Vix.Vips.Operation
