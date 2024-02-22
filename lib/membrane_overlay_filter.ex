@@ -15,7 +15,7 @@ defmodule Membrane.OverlayFilter do
   alias Vix.Vips.Operation
 
   def_options overlay: [
-                spec: String.t() | Vix.Vips.Image.t(),
+                spec: Path.t() | Vix.Vips.Image.t(),
                 description: """
                 Path to the overlay image or a `Vix` image.
 
