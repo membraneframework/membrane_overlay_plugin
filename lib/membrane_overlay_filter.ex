@@ -73,7 +73,7 @@ defmodule Membrane.OverlayFilter do
     add_alpha(planes, overlay)
   end
 
-  def open_planes(yuv, width, height) do
+  defp open_planes(yuv, width, height) do
     half_width = div(width, 2)
     half_height = div(height, 2)
     y_size = width * height
@@ -99,7 +99,7 @@ defmodule Membrane.OverlayFilter do
     {y, u, v}
   end
 
-  def compose_planes({image_y, image_u, image_v}, {overlay_y, overlay_u, overlay_v}, opts) do
+  defp compose_planes({image_y, image_u, image_v}, {overlay_y, overlay_u, overlay_v}, opts) do
     uv_x = if is_integer(opts[:x]), do: div(opts[:x], 2), else: opts[:x]
     uv_y = if is_integer(opts[:y]), do: div(opts[:y], 2), else: opts[:y]
     opts_uv = [x: uv_x, y: uv_y]
