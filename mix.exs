@@ -21,7 +21,8 @@ defmodule Membrane.Overlay.Plugin.Mixfile do
       # docs
       name: "Membrane Overlay plugin",
       source_url: @github_url,
-      docs: docs()
+      docs: docs(),
+      homepage_url: "https://membrane.stream"
     ]
   end
 
