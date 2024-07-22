@@ -6,6 +6,8 @@ defmodule Membrane.OverlayFilter do
   """
   use Membrane.Filter
 
+  require Membrane.Logger
+
   alias Membrane.RawVideo
 
   def_input_pad :input, accepted_format: %RawVideo{pixel_format: :I420}
@@ -69,6 +71,27 @@ defmodule Membrane.OverlayFilter do
     image_planes = open_planes(buffer.payload, width, height)
     composed = compose_planes(image_planes, overlay_planes, compose_options)
     {[buffer: {:output, %{buffer | payload: composed}}], state}
+  end
+
+  @impl true
+  def handle_parent_notification({:update_overlay, overlay_update = %Membrane.OverlayFilter.UpdateOverlay{}}, _ctx, state) do
+    opts_y = options |> Map.take([:x, :y, :blend_mode]) |> Enum.to_list()
+    uv_x = if is_integer(options.x), do: div(options.x, 2), else: options.x
+    uv_y = if is_integer(options.y), do: div(options.y, 2), else: options.y
+    opts_uv = [x: uv_x, y: uv_y, blend_mode: options.blend_mode]
+
+    state = %{
+      overlay_planes: open_overlay(options.overlay),
+      compose_options: {opts_y, opts_uv}
+    }
+
+    {[], state}
+  end
+
+  @impl true
+  def handle_parent_notification(other, _ctx, state) do
+    Membrane.Logger.warn("Unsupported parent notification: #{inspect(other)}")
+    {[], state}
   end
 
   defp open_overlay(overlay) do
