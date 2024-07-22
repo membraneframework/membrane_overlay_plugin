@@ -3,12 +3,15 @@ defmodule Membrane.OverlayFilter do
   Applies image or text overlay to video.
 
   Based on `Image`.
+
+  To update overlay image send `Membrane.OverlayFilter.UpdateOverlay\t` notification from parent.
   """
   use Membrane.Filter
 
   require Membrane.Logger
 
   alias Membrane.RawVideo
+  alias Membrane.OverlayPlugin.UpdateOverlay
 
   def_input_pad :input, accepted_format: %RawVideo{pixel_format: :I420}
   def_output_pad :output, accepted_format: %RawVideo{pixel_format: :I420}
@@ -74,14 +77,18 @@ defmodule Membrane.OverlayFilter do
   end
 
   @impl true
-  def handle_parent_notification({:update_overlay, overlay_update = %Membrane.OverlayFilter.UpdateOverlay{}}, _ctx, state) do
-    opts_y = options |> Map.take([:x, :y, :blend_mode]) |> Enum.to_list()
-    uv_x = if is_integer(options.x), do: div(options.x, 2), else: options.x
-    uv_y = if is_integer(options.y), do: div(options.y, 2), else: options.y
-    opts_uv = [x: uv_x, y: uv_y, blend_mode: options.blend_mode]
+  def handle_parent_notification(
+        %UpdateOverlay{x: x, y: y, overlay: overlay, blend_mode: blend_mode},
+        _ctx,
+        _state
+      ) do
+    opts_y = [x: x, y: y, blend_mode: blend_mode]
+    uv_x = if is_integer(x), do: div(x, 2), else: x
+    uv_y = if is_integer(y), do: div(y, 2), else: y
+    opts_uv = [x: uv_x, y: uv_y, blend_mode: blend_mode]
 
     state = %{
-      overlay_planes: open_overlay(options.overlay),
+      overlay_planes: open_overlay(overlay),
       compose_options: {opts_y, opts_uv}
     }
 
@@ -90,7 +97,7 @@ defmodule Membrane.OverlayFilter do
 
   @impl true
   def handle_parent_notification(other, _ctx, state) do
-    Membrane.Logger.warn("Unsupported parent notification: #{inspect(other)}")
+    Membrane.Logger.warning("Unsupported parent notification: #{inspect(other)}")
     {[], state}
   end
 

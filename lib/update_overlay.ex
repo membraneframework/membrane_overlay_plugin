@@ -1,5 +1,7 @@
 defmodule Membrane.OverlayPlugin.UpdateOverlay do
-  @moduledoc false
+  @moduledoc """
+  Specifies the overlay update.
+  """
 
   @enforce_keys [:overlay, :x, :y, :blend_mode]
   defstruct @enforce_keys
