@@ -4,14 +4,14 @@ defmodule Membrane.OverlayFilter do
 
   Based on `Image`.
 
-  To update overlay image send `Membrane.OverlayFilter.UpdateOverlay\t` notification from parent.
+  To update overlay send `Membrane.OverlayFilter.UpdateOverlay` notification from parent.
   """
   use Membrane.Filter
 
   require Membrane.Logger
 
+  alias Membrane.OverlayFilter.UpdateOverlay
   alias Membrane.RawVideo
-  alias Membrane.OverlayPlugin.UpdateOverlay
 
   def_input_pad :input, accepted_format: %RawVideo{pixel_format: :I420}
   def_output_pad :output, accepted_format: %RawVideo{pixel_format: :I420}
