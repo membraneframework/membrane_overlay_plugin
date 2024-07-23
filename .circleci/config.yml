@@ -20,6 +20,7 @@ workflows:
           filters:
             <<: *filters
       - elixir/hex_publish:
+          cache-version: 4
           requires:
             - elixir/build_test
             - elixir/test
