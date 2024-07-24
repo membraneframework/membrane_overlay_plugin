@@ -2,8 +2,8 @@ defmodule Membrane.OverlayFilterTest do
   use ExUnit.Case, async: true
   import Membrane.ChildrenSpec
   import Membrane.Testing.Assertions
-  alias Membrane.Testing
   alias Membrane.OverlayFilter.OverlayDescription
+  alias Membrane.Testing
 
   test "applies overlay on a given position of a YUV frame" do
     pipeline =
