@@ -10,6 +10,7 @@ Mix.install([
 defmodule Example do
   import Membrane.ChildrenSpec
   require Membrane.RCPipeline, as: RCPipeline
+  alias Membrane.OverlayFilter.OverlayDescription
 
   def run() do
     {:ok, overlay} =
@@ -30,7 +31,9 @@ defmodule Example do
         })
         |> child(Membrane.H264.Parser)
         |> child(Membrane.H264.FFmpeg.Decoder)
-        |> child(%Membrane.OverlayFilter{overlay: overlay, x: :right, y: :top})
+        |> child(%Membrane.OverlayFilter{
+          initial_overlay: %OverlayDescription{overlay: overlay, x: :right, y: :top}
+        })
         |> child(Membrane.H264.FFmpeg.Encoder)
         |> child(:sink, %Membrane.File.Sink{location: "output.h264"})
     )
