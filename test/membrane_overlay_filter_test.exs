@@ -3,6 +3,7 @@ defmodule Membrane.OverlayFilterTest do
   import Membrane.ChildrenSpec
   import Membrane.Testing.Assertions
   alias Membrane.Testing
+  alias Membrane.OverlayFilter.OverlayDescription
 
   test "applies overlay on a given position of a YUV frame" do
     pipeline =
@@ -12,7 +13,13 @@ defmodule Membrane.OverlayFilterTest do
             output: [File.read!("test/fixtures/frame.yuv")]
           })
           |> child(%Membrane.RawVideo.Parser{width: 1920, height: 1080, pixel_format: :I420})
-          |> child(%Membrane.OverlayFilter{overlay: "test/fixtures/overlay.png", x: 200, y: 100})
+          |> child(%Membrane.OverlayFilter{
+            initial_overlay: %OverlayDescription{
+              overlay: "test/fixtures/overlay.png",
+              x: 200,
+              y: 100
+            }
+          })
           |> child(:sink, Membrane.Testing.Sink)
       )
 
@@ -31,9 +38,11 @@ defmodule Membrane.OverlayFilterTest do
           })
           |> child(%Membrane.RawVideo.Parser{width: 1920, height: 1080, pixel_format: :I420})
           |> child(%Membrane.OverlayFilter{
-            overlay: "test/fixtures/overlay.png",
-            x: :middle,
-            y: :center
+            initial_overlay: %OverlayDescription{
+              overlay: "test/fixtures/overlay.png",
+              x: :middle,
+              y: :center
+            }
           })
           |> child(:sink, Membrane.Testing.Sink)
       )

@@ -4,13 +4,15 @@ defmodule Membrane.OverlayFilter do
 
   Based on `Image`.
 
-  To update overlay send `Membrane.OverlayFilter.UpdateOverlay` notification from parent.
+  You need to provide the first overlay description as the `initial_overlay` option.
+  To update overlay dynamically you can send {:update_overlay,`Membrane.OverlayFilter.OverlayDescription`}
+  notification from parent.
   """
   use Membrane.Filter
 
   require Membrane.Logger
 
-  alias Membrane.OverlayFilter.UpdateOverlay
+  alias Membrane.OverlayFilter.OverlayDescription
   alias Membrane.RawVideo
 
   def_input_pad :input, accepted_format: %RawVideo{pixel_format: :I420}
@@ -19,48 +21,28 @@ defmodule Membrane.OverlayFilter do
   alias Vix.Vips.Image, as: Vimage
   alias Vix.Vips.Operation
 
-  def_options overlay: [
-                spec: Path.t() | Vix.Vips.Image.t(),
+  def_options initial_overlay: [
+                spec: OverlayDescription.t(),
                 description: """
-                Path to the overlay image or a `Vix` image.
-
-                You can get a `Vix` image for example by calling `Image.open/2`,
-                `Image.Text.text/2` or `Vix.Vips.Image.new_from_buffer/2`.
-                """
-              ],
-              x: [
-                spec: integer() | :center | :left | :right,
-                default: :center,
-                description: """
-                Distance of the overlay image from the left (or right if negative)
-                border of the frame. Can be also set to center, left or right.
-                """
-              ],
-              y: [
-                spec: integer() | :middle | :top | :bottom,
-                default: :middle,
-                description: """
-                Distance of the overlay image from the top (or bottom if negative)
-                border of the frame. Can be also set to middle, top or bottom.
-                """
-              ],
-              blend_mode: [
-                spec: Image.BlendMode.t(),
-                default: :over,
-                description: """
-                The manner in which the overlay is composed on the frame.
+                Description of the overlay that will be initially used.
                 """
               ]
 
   @impl true
   def handle_init(_ctx, options) do
-    opts_y = options |> Map.take([:x, :y, :blend_mode]) |> Enum.to_list()
-    uv_x = if is_integer(options.x), do: div(options.x, 2), else: options.x
-    uv_y = if is_integer(options.y), do: div(options.y, 2), else: options.y
-    opts_uv = [x: uv_x, y: uv_y, blend_mode: options.blend_mode]
+    initial_overlay = options.initial_overlay
+    opts_y = initial_overlay |> Map.take([:x, :y, :blend_mode]) |> Enum.to_list()
+
+    uv_x =
+      if is_integer(initial_overlay.x), do: div(initial_overlay.x, 2), else: initial_overlay.x
+
+    uv_y =
+      if is_integer(initial_overlay.y), do: div(initial_overlay.y, 2), else: initial_overlay.y
+
+    opts_uv = [x: uv_x, y: uv_y, blend_mode: initial_overlay.blend_mode]
 
     state = %{
-      overlay_planes: open_overlay(options.overlay),
+      overlay_planes: open_overlay(initial_overlay.overlay),
       compose_options: {opts_y, opts_uv}
     }
 
@@ -78,7 +60,8 @@ defmodule Membrane.OverlayFilter do
 
   @impl true
   def handle_parent_notification(
-        %UpdateOverlay{x: x, y: y, overlay: overlay, blend_mode: blend_mode},
+        {:update_overlay,
+         %OverlayDescription{x: x, y: y, overlay: overlay, blend_mode: blend_mode}},
         _ctx,
         _state
       ) do
