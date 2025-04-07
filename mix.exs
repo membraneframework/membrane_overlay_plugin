@@ -37,10 +37,10 @@ defmodule Membrane.Overlay.Plugin.Mixfile do
 
   defp deps do
     [
-      {:membrane_core, "~> 1.0"},
-      {:membrane_raw_video_format, "~> 0.3.0"},
-      {:membrane_raw_video_parser_plugin, "~> 0.12.0", only: :test},
-      {:image, "~> 0.42.0"},
+      {:membrane_core, "~> 1.2"},
+      {:membrane_raw_video_format, "~> 0.4.1"},
+      {:membrane_raw_video_parser_plugin, "~> 0.12.2", only: :test},
+      {:image, "~> 0.56.0"},
       {:vix, ">= 0.0.0"},
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
       {:dialyxir, ">= 0.0.0", only: :dev, runtime: false},
