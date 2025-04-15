@@ -85,7 +85,7 @@ defmodule Membrane.OverlayFilter do
 
   defp open_overlay(overlay, frame_height) do
     overlay = if is_binary(overlay), do: Image.open!(overlay), else: overlay
-    {:ok, overlay} = Image.resize(overlay, frame_height/overlay_height)
+    {:ok, overlay} = Image.resize(overlay, frame_height/Image.height(overlay))
     {:ok, overlay_yuv} = Image.YUV.write_to_binary(overlay, :C420)
     planes = open_planes(overlay_yuv, Image.width(overlay), Image.height(overlay))
     add_alpha(planes, overlay)
