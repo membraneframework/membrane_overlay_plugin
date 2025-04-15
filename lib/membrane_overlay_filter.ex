@@ -33,7 +33,7 @@ defmodule Membrane.OverlayFilter do
   def handle_init(_ctx, options), do: {[], options}
 
   @impl true
-  def handle_stream_format(:input, %RawVideo{height: frame_height}, ctx, state) do
+  def handle_stream_format(:input, %RawVideo{height: frame_height} = stream_format, ctx, state) do
 
     state = state_from_overlay_description(state.initial_overlay, frame_height)
     {[{:forward, stream_format}], state}
