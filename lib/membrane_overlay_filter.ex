@@ -14,6 +14,7 @@ defmodule Membrane.OverlayFilter do
 
   alias Membrane.OverlayFilter.OverlayDescription
   alias Membrane.RawVideo
+  alias Membrane.StreamFormat
 
   def_input_pad :input, accepted_format: %RawVideo{pixel_format: :I420}
   def_output_pad :output, accepted_format: %RawVideo{pixel_format: :I420}
@@ -29,10 +30,14 @@ defmodule Membrane.OverlayFilter do
               ]
 
   @impl true
-  def handle_init(_ctx, options) do
-    state = state_from_overlay_description(options.initial_overlay)
+  def handle_init(_ctx, options), do: {[], options}
 
-    {[], state}
+  @impl true
+  def handle_stream_format(:input, %RawVideo{height: frame_height}, ctx, state) do
+
+    state = state_from_overlay_description(state.initial_overlay, frame_height)
+    IO.inspect(stream_format, label: "stream_format")
+    {[{:forward, stream_format}], state}
   end
 
   @impl true
@@ -47,10 +52,10 @@ defmodule Membrane.OverlayFilter do
   @impl true
   def handle_parent_notification(
         {:update_overlay, overlay_description = %OverlayDescription{}},
-        _ctx,
+        ctx,
         _state
       ) do
-    state = state_from_overlay_description(overlay_description)
+    state = state_from_overlay_description(overlay_description, ctx.pads.input.stream_format.height)
 
     {[], state}
   end
@@ -61,26 +66,27 @@ defmodule Membrane.OverlayFilter do
     {[], state}
   end
 
-  @spec state_from_overlay_description(OverlayDescription.t()) :: map()
+  @spec state_from_overlay_description(OverlayDescription.t(), number()) :: map()
   defp state_from_overlay_description(%OverlayDescription{
          x: x,
          y: y,
          overlay: overlay,
          blend_mode: blend_mode
-       }) do
+       }, frame_height) do
     opts_y = [x: x, y: y, blend_mode: blend_mode]
     uv_x = if is_integer(x), do: div(x, 2), else: x
     uv_y = if is_integer(y), do: div(y, 2), else: y
     opts_uv = [x: uv_x, y: uv_y, blend_mode: blend_mode]
 
     %{
-      overlay_planes: open_overlay(overlay),
+      overlay_planes: open_overlay(overlay, frame_height),
       compose_options: {opts_y, opts_uv}
     }
   end
 
-  defp open_overlay(overlay) do
+  defp open_overlay(overlay, frame_height) do
     overlay = if is_binary(overlay), do: Image.open!(overlay), else: overlay
+    {:ok, overlay} = Image.resize(overlay, frame_height/overlay_height)
     {:ok, overlay_yuv} = Image.YUV.write_to_binary(overlay, :C420)
     planes = open_planes(overlay_yuv, Image.width(overlay), Image.height(overlay))
     add_alpha(planes, overlay)
