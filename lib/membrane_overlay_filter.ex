@@ -34,18 +34,24 @@ defmodule Membrane.OverlayFilter do
 
   @impl true
   def handle_stream_format(:input, %RawVideo{height: frame_height} = stream_format, ctx, state) do
-
+    IO.inspect(stream_format)
     state = state_from_overlay_description(state.initial_overlay, frame_height)
+    |> Map.put(:take_frame, true)
+
     {[{:forward, stream_format}], state}
   end
 
   @impl true
-  def handle_buffer(:input, buffer, ctx, state) do
+  def handle_buffer(:input, _buffer, _ctx, %{take_frame: false} = state) do
+    {[], %{state | take_frame: true}}
+  end
+
+  def handle_buffer(:input, buffer, ctx, %{take_frame: true} = state) do
     %RawVideo{width: width, height: height} = ctx.pads.input.stream_format
     %{overlay_planes: overlay_planes, compose_options: compose_options} = state
     image_planes = open_planes(buffer.payload, width, height)
     composed = compose_planes(image_planes, overlay_planes, compose_options)
-    {[buffer: {:output, %{buffer | payload: composed}}], state}
+    {[buffer: {:output, %{buffer | payload: composed}}], %{state | take_frame: false}}
   end
 
   @impl true
