@@ -42,16 +42,15 @@ defmodule Membrane.Overlay.Plugin.Mixfile do
       {:membrane_raw_video_parser_plugin, "~> 0.12.0", only: :test},
       {:image, "~> 0.42.0"},
       {:vix, ">= 0.0.0"},
-      {:ex_doc, "~> 0.34", only: :dev, runtime: false},
-      {:dialyxir, "~> 1.4", only: :dev, runtime: false},
-      {:credo, "~> 1.7", only: :dev, runtime: false}
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
+      {:dialyxir, ">= 0.0.0", only: :dev, runtime: false},
+      {:credo, ">= 0.0.0", only: :dev, runtime: false}
     ]
   end
 
   defp dialyzer() do
     opts = [
-      flags: [:error_handling],
-      plt_add_apps: [:mix, :syntax_tools]
+      flags: [:error_handling]
     ]
 
     if System.get_env("CI") == "true" do
