@@ -23,7 +23,7 @@ defmodule Membrane.Overlay.Plugin.Mixfile do
       source_url: @github_url,
       docs: docs(),
       homepage_url: "https://membrane.stream",
-      aliases: [docs: ["docs", &prepend_llms_links/1]]
+      aliases: [docs: ["docs", &append_llms_links/1]]
     ]
   end
 
@@ -83,7 +83,7 @@ defmodule Membrane.Overlay.Plugin.Mixfile do
     ]
   end
 
-  defp prepend_llms_links(_) do
+  defp append_llms_links(_args) do
     output_dir = docs()[:output] || "doc"
     path = Path.join(output_dir, "llms.txt")
 
