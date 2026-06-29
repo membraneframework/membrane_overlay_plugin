@@ -43,7 +43,7 @@ defmodule Membrane.Overlay.Plugin.Mixfile do
       {:membrane_raw_video_parser_plugin, "~> 0.12.0", only: :test},
       {:image, "~> 0.42.0"},
       {:vix, ">= 0.0.0"},
-      {:ex_doc, "~> 0.40", only: :dev, runtime: false},
+      {:ex_doc, ">= 0.40.0", only: :dev, runtime: false},
       {:dialyxir, ">= 0.0.0", only: :dev, runtime: false},
       {:credo, ">= 0.0.0", only: :dev, runtime: false}
     ]
