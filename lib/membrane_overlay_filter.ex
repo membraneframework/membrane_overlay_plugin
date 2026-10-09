@@ -91,7 +91,7 @@ defmodule Membrane.OverlayFilter do
     half_height = div(height, 2)
     y_size = width * height
     uv_size = half_width * half_height
-    <<y::binary-size(y_size), u::binary-size(uv_size), v::binary-size(uv_size)>> = yuv
+    <<y::binary-size(^y_size), u::binary-size(^uv_size), v::binary-size(^uv_size)>> = yuv
 
     {:ok, y} = Vimage.new_from_binary(y, width, height, 1, :VIPS_FORMAT_UCHAR)
     {:ok, u} = Vimage.new_from_binary(u, half_width, half_height, 1, :VIPS_FORMAT_UCHAR)
